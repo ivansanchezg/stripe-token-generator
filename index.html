@@ -1,0 +1,53 @@
+<head>
+  <title>Stripe token generator</title>
+</head>
+
+<body>
+  <script src="https://checkout.stripe.com/checkout.js"></script>
+
+  <div style="text-align: center">
+    1. Enter your <a href="https://dashboard.stripe.com/account/apikeys">Publishable key</a><br /><br />
+    <input id="keyInput" type="text" size="40" style="text-align: center" /><br /><br />
+    2. Click the Purchase button<br /><br />
+    <button id="customButton">Purchase</button><br /><br />
+    3. Copy the generated token:<br /><br />
+    <input id="tokenInput" type="text" size="40" style="text-align: center" readonly/>
+    <button id="copyClipboard" onclick="copyToClipboard()">Copy</button>
+  </div>
+
+  <script>
+    function copyToClipboard() {
+      var tokenInput = document.getElementById("tokenInput");
+      tokenInput.select();
+      document.execCommand("copy");
+    }
+
+    document.getElementById('customButton').addEventListener('click', function (e) {
+      var key = document.getElementById('keyInput').value;
+
+      var handler = StripeCheckout.configure({
+        key: key,
+        image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+        locale: 'auto',
+        token: function (token) {
+          // You can access the token ID with `token.id`.
+          // Get the token ID to your server-side code for use.
+          document.getElementById('tokenInput').value = token.id;
+        }
+      });
+
+      // Open Checkout with further options:
+      handler.open({
+        name: 'Demo Site',
+        description: 'Token generator',
+        amount: 2000
+      });
+      e.preventDefault();
+    });
+
+    // Close Checkout on page navigation:
+    window.addEventListener('popstate', function () {
+      handler.close();
+    });
+  </script>
+</body>
